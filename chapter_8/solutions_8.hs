@@ -87,3 +87,14 @@ balance (x:xs) = Node (balance xs) (balance ys)
              where (ys, zs) = halve xs
 -}
 
+
+-- Exercise 7
+instance Eq a => Eq (Maybe a) where
+    Nothing == Nothing  = True
+    Just x  == Just x   = True
+    _       == _        = False
+
+
+instance Eq a => Eq [a] where
+    xs = ys | length xs /= length ys = False
+            | otherwise = and [x == y | (x,y) <- zip xs ys]
