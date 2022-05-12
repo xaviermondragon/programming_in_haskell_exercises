@@ -88,13 +88,47 @@ balance (x:xs) = Node (balance xs) (balance ys)
 -}
 
 
+-- Exercise 5
+data Expr = Val Int | Add Expr Expr
+
+
+folde :: (Int -> a) -> (a -> a -> a) -> Expr -> a
+folde f _ (Val n) = f n
+folde f g (Add e1 e2) = g (folde f g e1) (folde f g e2)
+
+
+-- Exercise 6:
+eval :: Expr -> Int
+eval e = folde id (+) e
+-- eval (Add (Add (Val 2) (Val 3)) (Val 4))
+
+size :: Expr -> Int
+size (Val _)     = 1
+size (Add e1 e2) = size e1 + size e2
+-- size (Add (Add (Val 2) (Val 3)) (Val 4))
+
+
 -- Exercise 7
+{-
 instance Eq a => Eq (Maybe a) where
-    Nothing == Nothing  = True
-    Just x  == Just x   = True
-    _       == _        = False
+    Nothing == Nothing = True
+    Just x  == Just y  = x == y
+    _       == _       = False
+
+Duplicate instance declarations:
+      instance Eq a => Eq (Maybe a)
+        -- Defined at chapter_8/solutions_8.hs:112:10
+      instance Eq a => Eq (Maybe a) -- Defined in ‘GHC.Maybe’
+-}
 
 
+{-
 instance Eq a => Eq [a] where
-    xs = ys | length xs /= length ys = False
-            | otherwise = and [x == y | (x,y) <- zip xs ys]
+    xs == ys | length xs /= length ys = False
+             | otherwise = and [x == y | (x,y) <- zip xs ys]
+
+Duplicate instance declarations:
+      instance Eq a => Eq [a]
+        -- Defined at chapter_8/solutions_8.hs:119:10
+      instance Eq a => Eq [a] -- Defined in ‘GHC.Classes’
+-}
