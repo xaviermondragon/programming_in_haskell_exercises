@@ -1,5 +1,6 @@
 main :: IO ()
-main = print (solutions [1,3,7,10,25,50] 765)
+--main = print (solutions [1,3,7,10,25,50] 765)
+main = print (solutions' [1,3,7,10,25,50] 765)
 
 
 -- Arithmetic operators
@@ -14,10 +15,10 @@ instance Show Op where
 
 
 valid :: Op -> Int -> Int -> Bool
-valid Add _ _ = True
+valid Add x y = x <= y
 valid Sub x y = x > y
-valid Mul _ _ = True
-valid Div x y = x `mod` y == 0
+valid Mul x y = x /= 1 && y /= 1 && x <= y
+valid Div x y = y /= 1 && x `mod` y == 0
 
 
 apply :: Op -> Int -> Int -> Int
@@ -113,6 +114,24 @@ solutions :: [Int] -> Int -> [Expr]
 solutions ns n = [e | ns' <- choices ns, e <- exprs ns', eval e == [n]]
 
 
+-- Combining generation and evaluation
+type Result = (Expr,Int)
+
+
+results :: [Int] -> [Result]
+results []  = []
+results [n] = [(Val n, n) | n > 0]
+results ns  = [res | (ls,rs) <- split ns, lx <- results ls, ry <- results rs, res <- combine' lx ry]
+
+
+combine' :: Result -> Result -> [Result]
+combine' (l, x) (r, y) = [(App o l r, apply o x y) | o <- ops, valid o x y]
+
+
+solutions' :: [Int] -> Int -> [Expr]
+solutions' ns n = [e | ns' <- choices ns, (e,m) <- results ns', m == n]
+
+
 -- Exercise 9.1
 choices' :: [a] -> [[a]]
 choices' xs = [zs |ys <- subs xs, zs <- perms ys]
@@ -130,10 +149,20 @@ isChoice [] _      = True
 isChoice (x:xs) [] = False
 isChoice (x:xs) ys = (elem x ys) && (isChoice xs (rmFstOcur x ys))
 
+
 {-
 Exercise 9.4
 length [e | ns' <- choices [1,3,7,10,25,50], e <- exprs ns']
--}
 length [e | ns' <- choices [1,3,7,10,25,50], e <- exprs ns', eval e /= []]
-length (solutions [1,3,7,10,25,50] 765)
+-}
 
+
+{-
+Exercise 9.5
+valid :: Op -> Int -> Int -> Bool
+valid Add _ _ = True
+valid Sub x y = True
+valid Mul _ _ = True
+valid Div x y = y /= 0 && x `mod` y == 0 
+length [e | ns' <- choices [1,3,7,10,25,50], e <- exprs ns', eval e /= []]
+-}
