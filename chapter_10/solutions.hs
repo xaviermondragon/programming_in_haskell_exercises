@@ -7,7 +7,7 @@ putStr' :: String -> IO ()
 putStr' xs = sequence_ [putChar x | x <- xs]
 
 
--- Exercise 2 and 3
+-- Exercise 2
 type Board = [Int]
 
 
@@ -18,12 +18,16 @@ putRow row num = do putStr (show row)
 
 
 putBoard' :: Board -> IO ()
-putBoard' xs = auxFunc (zip [1..] xs)
-               where auxFunc [] = return ()
-                     auxFunc (x:xs) = do putRow (fst x) (snd x)
-                                         auxFunc (xs)
+putBoard' b = putBoardAux' 1 b
 
 
+putBoardAux' :: Int -> Board -> IO ()
+putBoardAux' _ []     = return ()
+putBoardAux' n (x:xs) = do putRow n x
+                           putBoardAux' (n+1) xs
+
+
+-- Exercise 3
 putBoard'' :: Board -> IO ()
 putBoard'' xs = sequence_ [putRow row num | (row,num) <- zip [1..] xs]
 
